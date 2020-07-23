@@ -1,12 +1,17 @@
 body {
     background: white;
     color: black;
+    background: url(../img/mine4.jpg) no-repeat;
+    background-size: 100%;
 }
 
 h1 {
     background-color: blue;
     color: silver;
     text-align: center;
+    width: 200px;
+    margin: auto;
+    margin-bottom: 20px;
 }
 
 .control {

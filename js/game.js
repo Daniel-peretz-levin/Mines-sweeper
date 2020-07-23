@@ -21,6 +21,9 @@ function initGame() {
     setCellsMineCount();
     renderBoard();
     console.log(gBoard);
+    var elMines = document.querySelector('.mines');
+    elMines.textContent = gLevel.mines;
+
 }
 
 function buildBoard() {
@@ -48,7 +51,8 @@ function renderBoard() {
         strHtml += '<tr>';
         for (var j = 0; j < board[i].length; j++) {
             var cellClass = `${i}-${j}`;
-            strHtml += `<td class="cell ${cellClass}" onclick="cellClicked(this, ${i}, ${j})">`
+            var cellName = `${i}-${j}`;
+            strHtml += `<td class="cell ${cellClass}" id="cell${cellName}" oncontextmenu="onCellRightClick(event, this, ${i}, ${j})" onclick="cellClicked(this, ${i}, ${j})">`
             strHtml += '</td>'
         }
         strHtml += '</tr>'
@@ -71,18 +75,42 @@ function setCellsMineCount() {
     }
 }
 
+function onCellRightClick(event, elCell, i, j) {
+    event.preventDefault();
+    if (gLevel.mines - gGame.markedCount <= 0 && !gBoard[i][j].isMarked) return;
+    gBoard[i][j].isMarked = !gBoard[i][j].isMarked;
+    if (gBoard[i][j].isShown === true) return;
+    if (gBoard[i][j].isMarked === true) {
+        elCell.innerHTML = "🚩";
+        gGame.markedCount++;
+    } else {
+        elCell.innerHTML = "";
+        gGame.markedCount--;
+    }
+    var elMines = document.querySelector('.mines');
+    elMines.textContent = gLevel.mines - gGame.markedCount;
+
+}
+
 function cellClicked(elCell, i, j) {
     if (gGame.isLose) return;
+    if (gBoard[i][j].isMarked) return;
+    if (gBoard[i][j].isShown) return;
     if (gGame.isOn === false) startTimer();
     gGame.isOn = true;
     var cell = gBoard[i][j];
+    var pos = { i: i, j: j };
     var counter = cell.minesAroundCount
     if (cell.isMine === false) {
+
         cell.isShown = true;
         elCell.textContent = counter;
         elCell.style.backgroundColor = "lightblue";
         gGame.shownCount++;
         console.log("shown count is:", gGame.shownCount);
+        //if minecount === 0 do  newFunction() goes to each neighbour and call cellClicked
+        if (gBoard[i][j].minesAroundCount === 0) expendingNegs(pos);
+        if (gLevel.mines === gGame.markedCount && gGame.shownCount === (gLevel.size * gLevel.size - gLevel.mines)) winGame();
     }
     else {
         cell.isShown = true;
@@ -91,6 +119,16 @@ function cellClicked(elCell, i, j) {
         loseGame();
     }
     // console.log("is shown:", cell.isShown, "count negs", counter);
+}
+function expendingNegs(pos) {
+    for (var i = pos.i - 1; i <= pos.i + 1; i++) {
+        for (var j = pos.j - 1; j <= pos.j + 1; j++) {
+            if (i === pos.i && j === pos.j) continue;
+            if (!checkIfInBoard(gBoard, { i: i, j: j })) continue;
+            var elCell = document.getElementById(`cell${i}-${j}`);
+            if (gBoard[i][j].isShown === false) cellClicked(elCell, i, j);
+        }
+    }
 }
 
 function minesNegsCount(board, pos) {
@@ -161,9 +199,6 @@ function restartGame() {
     elTimer.textContent = '😛';
 
 }
-function winGame(){
-    
-}
 
 function loseGame() {
     gGame.isLose = true;
@@ -171,18 +206,24 @@ function loseGame() {
     var elTimer = document.querySelector('.restart');
     elTimer.textContent = '🤯';
 
-    // for (var i = 0; i < gBoard.length; i++) {
-    //     for (var j = 0; j < gBoard.length; j++) {
-    //         var cell = gBoard[i][j];
-    //         if (cell.isMine === true) {
-    //             cell.isShown = true;
-    // debugger;
-    // var elCell = document.querySelector(`.cell ${i}-${j}`);
-    // console.log(elCell);
-    // elCell.innerHTML = '💣';
-    //         }
-    //     }
-    // }
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard.length; j++) {
+            var cell = gBoard[i][j];
+            if (cell.isMine === true) {
+                cell.isShown = true;
+                var elCell = document.getElementById(`cell${i}-${j}`);
+                console.log(elCell);
+                elCell.innerHTML = '💣';
+            }
+        }
+    }
+}
+
+function winGame() {
+    clearInterval(gInterval);
+    var elTimer = document.querySelector('.restart');
+    elTimer.textContent = ' 😎';
+
 }
 
 
