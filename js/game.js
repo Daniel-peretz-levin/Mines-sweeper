@@ -110,7 +110,6 @@ function cellClicked(elCell, i, j) {
         console.log("shown count is:", gGame.shownCount);
         //if minecount === 0 do  newFunction() goes to each neighbour and call cellClicked
         if (gBoard[i][j].minesAroundCount === 0) expendingNegs(pos);
-        if (gLevel.mines === gGame.markedCount && gGame.shownCount === (gLevel.size * gLevel.size - gLevel.mines)) winGame();
     }
     else {
         cell.isShown = true;
@@ -118,6 +117,7 @@ function cellClicked(elCell, i, j) {
         elCell.style.backgroundColor = "red";
         loseGame();
     }
+    if (gLevel.mines === gGame.markedCount && gGame.shownCount === (gLevel.size * gLevel.size - gLevel.mines)) winGame();
     // console.log("is shown:", cell.isShown, "count negs", counter);
 }
 function expendingNegs(pos) {

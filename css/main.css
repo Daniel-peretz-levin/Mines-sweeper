@@ -61,6 +61,8 @@ h1 {
     font-weight: bold;
     background: silver;
     color: red;
+    border: black solid;
+
 }
 
 .cell:hover {
